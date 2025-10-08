@@ -53,7 +53,7 @@ type OpticalDeviceStatus struct {
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
-	Conditionsmetav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// ObservedBandwidth reflects the last known bandwidth from the hardware.
 	ObservedBandwidth string `json:"observedBandwidth,omitempty"`
@@ -88,7 +88,7 @@ type OpticalDevice struct {
 type OpticalDeviceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           OpticalDevice `json:"items"`
+	Items           []OpticalDevice `json:"items"`
 }
 
 func init() {

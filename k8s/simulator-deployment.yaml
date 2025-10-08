@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hardware-simulator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hardware-simulator
+  template:
+    metadata:
+      labels:
+        app: hardware-simulator
+    spec:
+      containers:
+      - name: simulator
+        image: golang:1.21
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            cd /app
+            go run main.go
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: simulator-code
+          mountPath: /app
+      volumes:
+      - name: simulator-code
+        configMap:
+          name: simulator-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hardware-simulator
+  namespace: default
+spec:
+  selector:
+    app: hardware-simulator
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  type: ClusterIP
