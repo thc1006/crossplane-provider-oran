@@ -1,0 +1,19 @@
+# An example Claim to request a new optical device configuration
+apiVersion: ran.example.com/v1alpha1
+kind: OpticalDeviceClaim
+metadata:
+  name: site-a-laser-01
+  namespace: default
+spec:
+  # The name of the Composition to use
+  compositionRef:
+    name: xopticaldevice.to.hardware.ran.example.com
+  # Parameters defined in the XRD
+  location: "site-A/rack-3"
+  targetDevice:
+    hostname: "192.168.1.100" # IP of the Local Controller PC
+    port: 9001
+  parameters:
+    bandwidth: "100Gbps"
+    laserPower: "15.0dBm"
+    channel: 42

@@ -1,0 +1,34 @@
+# Composition to map the abstract XOpticalDevice to a concrete OpticalDevice managed resource
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xopticaldevice.to.hardware.ran.example.com
+  labels:
+    provider: local-hardware
+spec:
+  compositeTypeRef:
+    apiVersion: ran.example.com/v1alpha1
+    kind: XOpticalDevice
+  resources:
+  - name: hardware-optical-device
+    base:
+      apiVersion: hardware.ran.example.com/v1alpha1
+      kind: OpticalDevice
+      metadata:
+        labels:
+          crossplane.io/composition: xopticaldevice.to.hardware.ran.example.com
+    patches:
+    - fromFieldPath: "metadata.name"
+      toFieldPath: "metadata.name"
+    - fromFieldPath: "spec.location"
+      toFieldPath: "spec.location"
+    - fromFieldPath: "spec.targetDevice.hostname"
+      toFieldPath: "spec.controllerConfig.hostname"
+    - fromFieldPath: "spec.targetDevice.port"
+      toFieldPath: "spec.controllerConfig.port"
+    - fromFieldPath: "spec.parameters.bandwidth"
+      toFieldPath: "spec.parameters.bandwidth"
+    - fromFieldPath: "spec.parameters.laserPower"
+      toFieldPath: "spec.parameters.laserPower"
+    - fromFieldPath: "spec.parameters.channel"
+      toFieldPath: "spec.parameters.channel"

@@ -1,0 +1,42 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xopticaldevices.ran.example.com
+spec:
+  group: ran.example.com
+  names:
+    kind: XOpticalDevice
+    plural: xopticaldevices
+  claimNames:
+    kind: OpticalDeviceClaim
+    plural: opticaldeviceclaims
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              hostname:
+                type: string
+                description: The management hostname or IP address of the device.
+              port:
+                type: integer
+                description: The management port of the device.
+              bandwidth:
+                type: string
+                description: Desired bandwidth configuration, e.g., "10Gbps".
+                pattern: '^\d+Gbps$'
+              laserPower:
+                type: string
+                description: Desired laser power, e.g., "14dBm".
+                pattern: '^\d+dBm$'
+            required:
+            - hostname
+            - port
+            - bandwidth
+            - laserPower

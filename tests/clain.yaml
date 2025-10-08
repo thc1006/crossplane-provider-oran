@@ -1,0 +1,13 @@
+apiVersion: ran.example.com/v1alpha1
+kind: OpticalDeviceClaim
+metadata:
+  name: device-claim-test
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: hardware
+  parameters:
+    hostname: laser-a1.site1
+    port: 830
+    bandwidth: "100Gbps"
+    laserPower: "15dBm"
