@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simulator-code
+  namespace: default
+data:
+  main.go: |
+    package main
+
+    import (
+    	"encoding/json"
+    	"fmt"
+    	"log"
+    	"net/http"
+    	"sync"
+    	"time"
+    )
+
+    type DeviceState struct {
+    	Hostname   string `json:"hostname"`
+    	Port       int    `json:"port"`
+    	Bandwidth  string `json:"bandwidth"`
+    	LaserPower string `json:"laserPower"`
+    }
+
+    type ConfigRequest struct {
+    	Hostname   string `json:"hostname"`
+    	Port       int    `json:"port"`
+    	Bandwidth  string `json:"bandwidth"`
+    	LaserPower string `json:"laserPower"`
+    }
+
+    type ConfigResponse struct {
+    	Status            string `json:"status"`
+    	ObservedBandwidth string `json:"observedBandwidth"`
+    	LastUpdated       string `json:"lastUpdated"`
+    }
+
+    var (
+    	deviceStore = make(map[string]DeviceState)
+    	storeMutex = &sync.Mutex{}
+    )
+
+    func configureHandler(w http.ResponseWriter, r *http.Request) {
+    	if r.Method != http.MethodPost {
+    		http.Error(w, "Only POST method is supported", http.StatusMethodNotAllowed)
+    		return
+    	}
+
+    	var req ConfigRequest
+    	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+    		http.Error(w, err.Error(), http.StatusBadRequest)
+    		return
+    	}
+
+    	storeMutex.Lock()
+    	defer storeMutex.Unlock()
+
+    	deviceStore[req.Hostname] = DeviceState{
+    		Hostname:   req.Hostname,
+    		Port:       req.Port,
+    		Bandwidth:  req.Bandwidth,
+    		LaserPower: req.LaserPower,
+    	}
+
+    	log.Printf("Configured device: %+v\n", req)
+
+    	resp := ConfigResponse{
+    		Status:            "configured",
+    		ObservedBandwidth: req.Bandwidth,
+    		LastUpdated:       time.Now().Format(time.RFC3339),
+    	}
+
+    	w.Header().Set("Content-Type", "application/json")
+    	w.WriteHeader(http.StatusOK)
+    	json.NewEncoder(w).Encode(resp)
+    }
+
+    func deconfigureHandler(w http.ResponseWriter, r *http.Request) {
+    	if r.Method != http.MethodDelete {
+    		http.Error(w, "Only DELETE method is supported", http.StatusMethodNotAllowed)
+    		return
+    	}
+
+    	var req struct {
+    		Hostname string `json:"hostname"`
+    	}
+    	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+    		http.Error(w, err.Error(), http.StatusBadRequest)
+    		return
+    	}
+
+    	storeMutex.Lock()
+    	defer storeMutex.Unlock()
+
+    	if _, ok := deviceStore[req.Hostname]; ok {
+    		delete(deviceStore, req.Hostname)
+    		log.Printf("Removed device config: %s\n", req.Hostname)
+    		w.WriteHeader(http.StatusOK)
+    		fmt.Fprintf(w, `{"status": "deconfigured", "hostname": "%s"}`, req.Hostname)
+    	} else {
+    		log.Printf("Tried to remove non-existent device: %s\n", req.Hostname)
+    		http.Error(w, "Device not found", http.StatusNotFound)
+    	}
+    }
+
+    func main() {
+    	http.HandleFunc("/configure", configureHandler)
+    	http.HandleFunc("/deconfigure", deconfigureHandler)
+
+    	log.Println("Hardware simulator starting on :8080...")
+    	if err := http.ListenAndServe(":8080", nil); err != nil {
+    		log.Fatal("ListenAndServe: ", err)
+    	}
+    }

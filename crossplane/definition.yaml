@@ -21,22 +21,43 @@ spec:
           spec:
             type: object
             properties:
-              hostname:
+              location:
                 type: string
-                description: The management hostname or IP address of the device.
-              port:
-                type: integer
-                description: The management port of the device.
-              bandwidth:
-                type: string
-                description: Desired bandwidth configuration, e.g., "10Gbps".
-                pattern: '^\d+Gbps$'
-              laserPower:
-                type: string
-                description: Desired laser power, e.g., "14dBm".
-                pattern: '^\d+dBm$'
+                description: "The location of the device."
+              controllerConfig:
+                type: object
+                description: "Connection configuration for the local controller."
+                properties:
+                  hostname:
+                    type: string
+                    description: "The hostname or IP of the controller."
+                  port:
+                    type: integer
+                    description: "The port number for the device management interface."
+                    minimum: 1
+                    maximum: 65535
+                required:
+                - hostname
+                - port
+              parameters:
+                type: object
+                description: "Desired hardware parameters."
+                properties:
+                  bandwidth:
+                    type: string
+                    description: "The configured bandwidth of the device."
+                    pattern: "^[0-9]+(G|M|K)bps$"
+                  laserPower:
+                    type: string
+                    description: "The power of the laser."
+                    pattern: "^[0-9.]+(dBm)$"
+                  channel:
+                    type: integer
+                    description: "Optional optical channel number."
+                required:
+                - bandwidth
+                - laserPower
             required:
-            - hostname
-            - port
-            - bandwidth
-            - laserPower
+            - location
+            - controllerConfig
+            - parameters

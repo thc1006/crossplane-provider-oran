@@ -22,7 +22,7 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	hardwarev1alpha1 "ran.example.com/o-ran-adapter/api/v1alpha1"
+	hardwarev1alpha1 "ran.example.com/o-ran-adapter/internal/api/v1alpha1"
 	"ran.example.com/o-ran-adapter/internal/controller"
 	//+kubebuilder:scaffold:imports
 )

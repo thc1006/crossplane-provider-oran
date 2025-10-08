@@ -1,0 +1,14 @@
+apiVersion: hardware.ran.example.com/v1alpha1
+kind: OpticalDevice
+metadata:
+  name: test-device-001
+  namespace: default
+spec:
+  location: site1
+  controllerConfig:
+    hostname: hardware-simulator
+    port: 8080
+  parameters:
+    bandwidth: 100Gbps
+    laserPower: 15dBm
+    channel: 1
